@@ -45,8 +45,20 @@ class PuvtsButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         child: isLoading
-            ? CircularProgressIndicator(
-                strokeWidth: 2,
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 15,
+                    width: 15,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                      color: puvtsWhite,
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Text('Deactivate'),
+                ],
               )
             : icon ??
                 Text(

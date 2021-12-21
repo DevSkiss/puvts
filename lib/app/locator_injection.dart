@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:puvts/core/domain/repository/direction_repository.dart';
 import 'package:puvts/core/services/cached_services.dart';
+import 'package:puvts/core/services/notification_service.dart';
 import 'package:puvts/features/login_signup/data/repository/passenger_repository_impl.dart';
 import 'package:puvts/features/login_signup/data/service/auth_service_api.dart';
 import 'package:puvts/features/login_signup/domain/bloc/login_signup_bloc.dart';
@@ -31,4 +32,5 @@ Future<void> init() async {
   locator.registerLazySingleton<CachedService>(() => CachedServiceImpl());
   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
   locator.registerLazySingleton(() => sharedPreferences);
+  locator.registerLazySingleton(() => NotificationHelper());
 }

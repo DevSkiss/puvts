@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:puvts/core/constants/puvts_colors.dart';
 import 'package:puvts/features/maps/presentation/screen/maps_view.dart';
+import 'package:puvts/features/profile/presentation/profile_screen.dart';
 
 class BottomNav extends StatefulWidget {
   const BottomNav({Key? key}) : super(key: key);
@@ -43,10 +44,6 @@ class _BottomNavState extends State<BottomNav> {
 
   List<Widget> _buildScreens = <Widget>[
     MapScreen(),
-    Scaffold(
-      body: Center(
-        child: Text('This Page is Under Construction'),
-      ),
-    ),
+    ProfileScreen(),
   ];
 }

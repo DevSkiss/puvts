@@ -13,8 +13,8 @@ class MapState with _$MapState {
     @Default(false) noDriverFound,
     @Default(false) isSendingNewLocation,
     @Default(false) isLookingForDrivers,
-    Marker? driverPosition,
-    Marker? myPosition,
+    LatLng? driverPosition,
+    LatLng? myPosition,
     Set<Marker>? markers,
     Directions? info,
   }) = _MapState;

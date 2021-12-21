@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 import 'package:puvts/app/locator_injection.dart';
 import 'package:puvts/core/constants/puvts_colors.dart';
 import 'package:puvts/core/widgets/bottom_nav.dart';
@@ -19,7 +23,7 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
-  TextEditingController usernameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
   @override
@@ -33,7 +37,7 @@ class _LoginViewState extends State<LoginView> {
                 context, MaterialPageRoute(builder: (context) => BottomNav()));
           }
 
-          if (state.hasError) {
+          if (state.hasError && !state.isLoading) {
             showDialog<String>(
               context: context,
               barrierDismissible: false,
@@ -50,7 +54,7 @@ class _LoginViewState extends State<LoginView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        'Username or Password is Incorrect',
+                        'Username or Password is Incorrectsss',
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 20),
                       ),
@@ -116,10 +120,10 @@ class _LoginViewState extends State<LoginView> {
                       ),
                       const SizedBox(height: 30),
                       PuvtsTextfield(
-                        labelText: 'Username',
+                        labelText: 'Email',
                         textStyle: TextStyle(
                             color: puvtsWhite.withOpacity(0.8), fontSize: 20),
-                        controller: usernameController,
+                        controller: emailController,
                       ),
                       const SizedBox(height: 15),
                       PuvtsTextfield(
@@ -147,7 +151,7 @@ class _LoginViewState extends State<LoginView> {
                         height: 60,
                         buttonColor: puvtsBlue,
                         onPressed: () => context.read<LoginSignupBloc>().login(
-                              username: usernameController.text,
+                              email: emailController.text,
                               password: passwordController.text,
                             ),
                         icon: state.isLoading

@@ -20,6 +20,7 @@ class MapApiServiceImpl implements MapApiService {
     String requestBody = jsonEncode(<String, dynamic>{
       'user_type': 'driver',
     });
+
     String result = await _postUserToUrl(
       Uri.parse(BASE_URL + '/api/location/user-type'),
       body: requestBody,

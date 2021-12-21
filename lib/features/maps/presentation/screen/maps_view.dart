@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 import 'package:puvts/app/locator_injection.dart';
 import 'package:puvts/core/constants/puvts_colors.dart';
 import 'package:puvts/core/services/cached_services.dart';
@@ -31,17 +33,81 @@ class MapsView extends StatefulWidget {
 }
 
 class _MapsViewState extends State<MapsView> {
-  LatLng defaultLatLong = LatLng(11.242034, 124.999902);
+  Location location = Location();
+  LocationData? locationData;
+  Timer? timer;
+  LatLng? position;
+  late StreamSubscription<LocationData> locationSub;
   static const _initialCameraPosition = CameraPosition(
     target: LatLng(11.242034, 124.999902),
     zoom: 14.5,
   );
-  final CachedService _cachedService = locator<CachedService>();
-
   GoogleMapController? _googleMapController;
+  bool loading = false;
+
+  @override
+  void initState() {
+    timer = Timer.periodic(const Duration(minutes: 3), (Timer t) async {
+      await getLocation();
+      context.read<MapBloc>().updateMyLocation(
+          latitude: locationData?.latitude ?? 11,
+          longitude: locationData?.longitude ?? 124);
+    });
+    setState(() {
+      position = LatLng(
+        locationData?.latitude ?? 11,
+        locationData?.longitude ?? 124,
+      );
+      _googleMapController?.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: position ?? LatLng(11, 124),
+            zoom: 16.5,
+          ),
+        ),
+      );
+    });
+    super.initState();
+  }
+
+  void followMe() {
+    setState(() {
+      loading = true;
+    });
+    locationSub =
+        location.onLocationChanged.listen((LocationData currentLocation) {
+      setState(() {
+        position = LatLng(
+          currentLocation.latitude ?? 11,
+          currentLocation.longitude ?? 124,
+        );
+        _googleMapController?.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(
+              target: position ?? LatLng(11, 124),
+              zoom: 16.5,
+            ),
+          ),
+        );
+      });
+    });
+  }
+
+  void cancelFollow() {
+    setState(() {
+      loading = false;
+      locationSub.cancel();
+    });
+  }
+
+  Future<void> getLocation() async {
+    locationData = await location.getLocation();
+  }
 
   @override
   void dispose() {
+    locationSub.cancel();
+    timer?.cancel();
     _googleMapController?.dispose();
     super.dispose();
   }
@@ -65,7 +131,7 @@ class _MapsViewState extends State<MapsView> {
               IconButton(
                   onPressed: () async {
                     log('Remove User');
-                    await _cachedService.clearUser();
+                    await context.read<MapBloc>().logout();
                     Navigator.of(context).pushAndRemoveUntil(
                       CupertinoPageRoute(
                         builder: (BuildContext context) {
@@ -109,14 +175,23 @@ class _MapsViewState extends State<MapsView> {
                         },
                         markers: {
                           if (state.markers != null) ...state.markers!,
-                          state.driverPosition ??
-                              Marker(
-                                markerId: MarkerId('empty'),
-                              ),
-                          state.myPosition ??
-                              Marker(
-                                markerId: MarkerId('empty'),
-                              )
+                          Marker(
+                            markerId: MarkerId('driverPosition'),
+                            infoWindow: InfoWindow(title: 'Driver'),
+                            position: state.driverPosition ??
+                                LatLng(position?.latitude ?? 11,
+                                    position?.longitude ?? 124),
+                            icon: BitmapDescriptor.defaultMarkerWithHue(
+                                BitmapDescriptor.hueRed),
+                          ),
+                          Marker(
+                            markerId: MarkerId('myPosition'),
+                            infoWindow: InfoWindow(title: 'passenger'),
+                            position: LatLng(position?.latitude ?? 11,
+                                position?.longitude ?? 124),
+                            icon: BitmapDescriptor.defaultMarkerWithHue(
+                                BitmapDescriptor.hueBlue),
+                          ),
                         },
                       ),
                     ),
@@ -128,8 +203,7 @@ class _MapsViewState extends State<MapsView> {
                               'Duration: ${state.info?.totalDuration} - Distance ${state.info?.totalDistance}'),
                         )),
                     SizedBox(height: 15),
-                    Text(
-                        '${state.myPosition?.position.latitude}, ${state.myPosition?.position.longitude}'),
+                    Text('${position?.latitude}, ${position?.longitude}'),
                     Container(
                       margin: EdgeInsets.symmetric(vertical: 20),
                       color: Colors.transparent,
@@ -138,24 +212,20 @@ class _MapsViewState extends State<MapsView> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           PuvtsButton(
-                              text: 'Send New Location',
-                              isLoading: state.isSendingNewLocation,
+                              text: 'Activate',
+                              isLoading: loading,
                               buttonColor: puvtsBlue,
                               textColor: Colors.white,
                               height: 50,
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 10),
                               borderColor: Colors.transparent,
                               onPressed: () {
-                                context.read<MapBloc>().activateMyLocation();
-                                CameraUpdate.newCameraPosition(
-                                  CameraPosition(
-                                    target: LatLng(
-                                        state.myPosition?.position.latitude ??
-                                            11.242034,
-                                        state.myPosition?.position.longitude ??
-                                            124.999902),
-                                    zoom: 16.5,
-                                  ),
-                                );
+                                if (loading) {
+                                  cancelFollow();
+                                } else {
+                                  followMe();
+                                }
                               }),
                           PuvtsButton(
                             text: 'Find Driver',
@@ -170,8 +240,13 @@ class _MapsViewState extends State<MapsView> {
                                 CameraUpdate.newLatLngBounds(
                                     state.info?.bounds ??
                                         LatLngBounds(
-                                            southwest: defaultLatLong,
-                                            northeast: defaultLatLong),
+                                          southwest: LatLng(
+                                              position?.latitude ?? 11,
+                                              position?.longitude ?? 124),
+                                          northeast: LatLng(
+                                              position?.latitude ?? 11,
+                                              position?.longitude ?? 124),
+                                        ),
                                     100.0);
                               }
                             },
@@ -181,25 +256,6 @@ class _MapsViewState extends State<MapsView> {
                     )
                   ],
                 ),
-          floatingActionButton: Align(
-            alignment: Alignment.topLeft,
-            child: Container(
-              margin: EdgeInsets.only(top: 130, left: 30),
-              child: FloatingActionButton(
-                child: Icon(Icons.location_on),
-                onPressed: () => _googleMapController?.animateCamera(
-                  CameraUpdate.newCameraPosition(
-                    CameraPosition(
-                      target: LatLng(
-                          state.myPosition?.position.latitude ?? 11.242034,
-                          state.myPosition?.position.longitude ?? 124.999902),
-                      zoom: 16.5,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
         );
       },
     );

@@ -21,7 +21,7 @@ class SignupView extends StatefulWidget {
 class _SignupViewState extends State<SignupView> {
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
-  TextEditingController usernameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
   @override
@@ -182,10 +182,10 @@ class _SignupViewState extends State<SignupView> {
                       ),
                       const SizedBox(height: 10),
                       PuvtsTextfield(
-                        labelText: 'Username',
+                        labelText: 'Email',
                         textStyle: TextStyle(
                             color: puvtsWhite.withOpacity(0.8), fontSize: 20),
-                        controller: usernameController,
+                        controller: emailController,
                       ),
                       const SizedBox(height: 10),
                       PuvtsTextfield(
@@ -218,7 +218,7 @@ class _SignupViewState extends State<SignupView> {
                                   context.read<LoginSignupBloc>().signup(
                                         firstname: firstNameController.text,
                                         lastname: lastNameController.text,
-                                        username: usernameController.text,
+                                        email: emailController.text,
                                         password: passwordController.text,
                                       ),
                               text: 'Signup',

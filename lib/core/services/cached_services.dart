@@ -1,8 +1,7 @@
 import 'dart:convert';
-import 'dart:developer';
-
 import 'package:puvts/app/locator_injection.dart';
 import 'package:puvts/core/errors_exception/exceptions.dart';
+import 'package:puvts/features/login_signup/data/service/auth_service_api.dart';
 import 'package:puvts/features/login_signup/domain/passenger_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,6 +19,7 @@ abstract class CachedService {
 
 class CachedServiceImpl implements CachedService {
   final SharedPreferences prefs = locator<SharedPreferences>();
+  final AuthApiService _authApiService = locator<AuthApiService>();
 
   @override
   Future<void> cacheToken({required String token}) {
@@ -50,7 +50,8 @@ class CachedServiceImpl implements CachedService {
   }
 
   @override
-  Future<void> clearUser() {
-    return prefs.clear();
+  Future<void> clearUser() async {
+    await _authApiService.logout();
+    prefs.clear();
   }
 }
