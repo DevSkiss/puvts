@@ -1,9 +1,5 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
 import 'package:puvts/app/locator_injection.dart';
 import 'package:puvts/core/constants/puvts_colors.dart';
 import 'package:puvts/core/widgets/bottom_nav.dart';
