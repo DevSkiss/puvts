@@ -28,6 +28,9 @@ class MapBloc extends Cubit<MapState> {
 
   Location location = new Location();
 
+  bool _isFindMyDriverTapped = false;
+  bool get isFindMyDriverTapped => _isFindMyDriverTapped;
+
   void initialize() async {
     emit(state.copyWith(
       isLoading: true,
@@ -127,6 +130,7 @@ class MapBloc extends Cubit<MapState> {
   void getDirectionDriver() async {
     try {
       emit(state.copyWith(isLookingForDrivers: true));
+      _isFindMyDriverTapped = true;
       LatLng driverLocation = await getDriverLocation();
 
       Directions newDirection = await _mapRepository.getDirection(

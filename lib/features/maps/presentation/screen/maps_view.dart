@@ -45,11 +45,14 @@ class _MapsViewState extends State<MapsView> {
 
   @override
   void initState() {
-    timer = Timer.periodic(const Duration(minutes: 3), (Timer t) async {
+    timer = Timer.periodic(const Duration(seconds: 1), (Timer t) async {
       await getLocation();
       context.read<MapBloc>().updateMyLocation(
           latitude: locationData?.latitude ?? 11,
           longitude: locationData?.longitude ?? 124);
+      if (context.read<MapBloc>().isFindMyDriverTapped) {
+        context.read<MapBloc>().getDriverLocation();
+      }
     });
     setState(() {
       position = LatLng(
