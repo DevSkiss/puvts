@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:puvts/core/data/model/directions.dart';
+import 'package:puvts/features/maps/data/model/location_dto.dart';
 
 part 'map_state.freezed.dart';
 
@@ -17,5 +18,6 @@ class MapState with _$MapState {
     LatLng? myPosition,
     Set<Marker>? markers,
     Directions? info,
+    LocationDto? driverDetails,
   }) = _MapState;
 }

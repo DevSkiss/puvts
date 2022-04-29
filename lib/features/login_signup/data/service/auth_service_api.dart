@@ -70,6 +70,7 @@ class AuthApiServiceImpl extends AuthApiService {
             'lastname': lastname,
             'email': email,
             'active': true,
+            'user_type': 'passenger',
           })
           .then((value) => userCredential)
           .catchError((error) => throw UserAlreadyExisting);

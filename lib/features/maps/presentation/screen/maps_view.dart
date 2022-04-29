@@ -175,7 +175,8 @@ class _MapsViewState extends State<MapsView> {
                           if (state.markers != null) ...state.markers!,
                           Marker(
                             markerId: MarkerId('driverPosition'),
-                            infoWindow: InfoWindow(title: 'Driver'),
+                            infoWindow: InfoWindow(
+                                title: state.driverDetails?.plateNumber),
                             position: state.driverPosition ??
                                 LatLng(position?.latitude ?? 11,
                                     position?.longitude ?? 124),
@@ -200,6 +201,9 @@ class _MapsViewState extends State<MapsView> {
                           child: Text(
                               'Duration: ${state.info?.totalDuration} - Distance ${state.info?.totalDistance}'),
                         )),
+                    if (state.info != null)
+                      Text(
+                          'Seat Available: ${state.driverDetails?.seatAvailable}'),
                     SizedBox(height: 15),
                     Text('${position?.latitude}, ${position?.longitude}'),
                     Container(

@@ -63,6 +63,7 @@ class MapBloc extends Cubit<MapState> {
 
       LocationDto driverLocation = LocationDto.fromJson(result.docs[0].data());
 
+      emit(state.copyWith(driverDetails: driverLocation));
       return LatLng(double.parse(driverLocation.latitude),
           double.parse(driverLocation.longitude));
     } catch (e) {

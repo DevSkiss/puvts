@@ -99,7 +99,7 @@ class _LoginViewState extends State<LoginView> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'MOBILE GPS-BASED PUBLIC UTILITY VEHICLE TRACKING SYSTEM',
+                        'E-Jeep Android-Based Tracking System',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 20,
